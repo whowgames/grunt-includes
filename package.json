@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/vanetix/grunt-includes.git"
+    "url": "git://github.com/whowgames/grunt-includes.git"
   },
   "scripts": {
     "test": "grunt test"
