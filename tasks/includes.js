@@ -45,6 +45,7 @@ module.exports = function(grunt) {
       filenamePrefix: '',
       filenameSuffix: '',
       template: '',
+      callback: function(file) { return file; },
       templateFileRegexp: defaultTemplateFileRegexp
     });
 
@@ -205,21 +206,27 @@ module.exports = function(grunt) {
           fileLocation = opts.filenamePrefix + fileLocation + opts.filenameSuffix;
         }
 
-        // Try to locate the file through multiple includePath if array
-        if (grunt.util.kindOf(opts.includePath) === 'array') {
-          opts.includePath.some(function(p) {
-            next = path.join(p, fileLocation);
-            return grunt.file.isFile(next);
-          });
+        fileLocation = opts.callback(fileLocation);
 
-          if (!next) {
-            next = path.join(path.dirname(p), fileLocation);
-          }
+        if (fileLocation.length === 0) {
+            content = '';
         } else {
-          next = path.join((opts.includePath || path.dirname(p)), fileLocation);
-        }
+            // Try to locate the file through multiple includePath if array
+            if (grunt.util.kindOf(opts.includePath) === 'array') {
+                opts.includePath.some(function(p) {
+                    next = path.join(p, fileLocation);
+                    return grunt.file.isFile(next);
+                });
 
-        content = recurse(next, opts, included, indents + indent);
+                if (!next) {
+                    next = path.join(path.dirname(p), fileLocation);
+                }
+            } else {
+                next = path.join((opts.includePath || path.dirname(p)), fileLocation);
+            }
+
+            content = recurse(next, opts, included, indents + indent);
+        }
 
         // Wrap file around in template if `opts.template` has '{{file}}' in it.
         if (opts.template !== '' && opts.template.match(opts.templateFileRegexp)) {
